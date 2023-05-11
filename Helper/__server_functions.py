@@ -1,6 +1,7 @@
 from Helper.__functions import command_user, is_dm, is_dev
 from Helper.__config import BRAIN
 import json
+from random import randint
 
 import discord as dc
 
@@ -20,7 +21,21 @@ def modify_server(server_id,bot=None,staff=None):
 	open("DB/servers.json","w").write(json.dumps(server_data,indent="\t"))
 
 def member_check(ctx):
-	return is_dm(ctx) or is_staff_here(ctx) or is_bot_channel(ctx)
+	value = is_dm(ctx) or is_staff_here(ctx) or is_bot_channel(ctx)
+	if value:
+		increment_points(command_user(ctx).id)
+	
+	return value
+
+def increment_points(user):
+	point_dict = json.load(open('DB/points.json'))
+	user = str(user)
+	if user not in point_dict.keys():
+		point_dict[user] = 1
+	else:
+		point_dict[user] += 1
+	open("DB/points.json","w").write(json.dumps(point_dict,indent="\t"))
+	return
 
 def is_admin(ctx):
 	return ctx.author.guild_permissions.administrator or command_user(ctx) == ctx.guild.owner

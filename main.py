@@ -112,6 +112,7 @@ async def error_handler(ctx, err):
 	
 	if type(err) in [dc.errors.CheckFailure, cmd.errors.CheckFailure]:
 		if member_check(ctx) or is_staff_here(ctx): await ctx.respond("💀 You do not have permission to run this command!")
+		if not member_check(ctx) and is_slash_cmd(ctx): await ctx.respond("💀 You do not have permission to run this command here!", ephemeral=True)
 		return
 	
 	if type(err) == cmd.errors.CommandOnCooldown:

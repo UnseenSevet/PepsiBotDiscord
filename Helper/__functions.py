@@ -9,11 +9,12 @@ BOT_DEVELOPERS = [
 ]
 
 
-def get_members(bot):
+def get_members(bot, get_bots=False):
 	members = []
 	for x in bot.guilds:
 		for y in x.members:
-			if y not in members: members.append(y)
+			if y not in members: 
+				if get_bots or not y.bot: members.append(y)
 	return members
 					
 
@@ -171,7 +172,7 @@ def is_dm(ctx):
 	Shortened form of the function to check whether or not a command was sent in DMs.
 	'''
 
-	return isinstance(ctx.channel, dc.DMChannel)
+	return ctx.channel.type == dc.ChannelType.private
 
 def b64(s):
 	chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_-"

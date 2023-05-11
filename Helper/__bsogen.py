@@ -42,12 +42,12 @@ def bsona(namex):
     #and there's the end of the stolen code portion of this tour
 
     #time to fetch the assets. the bg image is just an alpha mask rn, limbs is the stuff on top and state is what it says on the tin
-    state = Image.open("Helper/States/"+states[(ord(name[0])-ord('a'))%26*2+(ord(name[1])-ord('a'))%2]+".png")
+    state = Image.open("Helper/Assets/States/"+states[(ord(name[0])-ord('a'))%26*2+(ord(name[1])-ord('a'))%2]+".png")
     if states[(ord(name[0])-ord('a'))%26*2+(ord(name[1])-ord('a'))%2] in ["MS", "AZ", "CA", "IL", "MT", "DC"]: #thesestates have a more interesting left border than right border so i flipped them
         state = ImageOps.mirror(state)
 
-    limbs = Image.open("Helper/Assets/book_overlay.png")
-    bg = Image.open("Helper/Assets/cover_overlay.png")
+    limbs = Image.open("Helper/Assets/Book/book_overlay.png")
+    bg = Image.open("Helper/Assets/Book/cover_overlay.png")
 
     #here i'm generating a solid color image that will get masked over using bg
     colormask = Image.new('HSV', (1080, 1080), (int(hue1*255), 198, 214))
@@ -80,12 +80,12 @@ def bsona(namex):
     #then i remove the excess bits so it's not hanging off the edge
     blank = Image.new('RGBA', bg.size, (0,0,0,0))
     blank.paste(state,(-170,(1080-statesize[1])//2-108),state)
-    state = Image.composite(Image.new('RGBA', (1080, 1080), (0,0,0,0)), blank, Image.open("Helper/Assets/cover_overlay.png"))
+    state = Image.composite(Image.new('RGBA', (1080, 1080), (0,0,0,0)), blank, Image.open("Helper/Assets/Book/cover_overlay.png"))
 
     #see above but this time it's for the shape not the state
     blank = Image.new('RGBA', bg.size, (0,0,0,0))
     blank.paste(img,(60,220),img)
-    img = Image.composite(Image.new('RGBA', (1080, 1080), (0,0,0,0)), blank, Image.open("Helper/Assets/cover_overlay.png"))
+    img = Image.composite(Image.new('RGBA', (1080, 1080), (0,0,0,0)), blank, Image.open("Helper/Assets/Book/cover_overlay.png"))
 
     #and now it's the final composition of the four images that make up the bsona
     bg = Image.alpha_composite(bg,state)

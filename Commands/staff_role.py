@@ -4,7 +4,6 @@ from Helper.__functions import plural, is_whole, smart_lookup, is_dm, is_whole, 
 from Helper.__action_functions import specify_server
 from Helper.__server_functions import is_staff_here, modify_server, get_server_json, is_admin
 import discord, re, asyncio
-from func_timeout import func_timeout, FunctionTimedOut
 
 def setup(BOT):
 	BOT.add_cog(Staff_role(BOT))
@@ -33,7 +32,7 @@ class Staff_role(cmd.Cog):
 		'''
 		Manages the list of all roles that are counted as staff roles.
 		'''
-
+		await ctx.response.defer()
 		await self.staff_role(ctx, mode, arg2=role)
 
 		return

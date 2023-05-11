@@ -37,7 +37,7 @@ class Reimport(cmd.Cog):
 		'''
 		Choose a bot command file to reload from disk using the `[command_name]` argument.
 		'''
-
+		await ctx.response.defer()
 		await self.reimport(ctx, cmd_name)
 		return
 

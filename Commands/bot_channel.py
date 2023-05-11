@@ -2,9 +2,8 @@ from Helper.__comp import *
 
 from Helper.__functions import plural, is_whole, smart_lookup, is_dm, is_whole
 from Helper.__action_functions import specify_server
-from Helper.__server_functions import is_staff_here, modify_server, get_server_json
+from Helper.__server_functions import is_staff_here, modify_server, get_server_json, member_check
 import discord, re, asyncio
-from func_timeout import func_timeout, FunctionTimedOut
 
 def setup(BOT):
 	BOT.add_cog(Botchannel(BOT))
@@ -12,11 +11,11 @@ def setup(BOT):
 
 class Botchannel(cmd.Cog):
 	'''
-	Manages the whitelist for channels members can use bot commands in. You can do add/remove/list, where add and remove add or remove channels from the whitelist, and list will make a list of all channels that are whitelisted in this server.
+	Manages the whitelist for channels members can use bot commands in. You can do add/remove/list, where add and remove add or remove channels from the whitelist, and list will make a list of all channels that are whitelisted in this server. You must state the channel ID or link the channel, otherwise it won't work.
 	'''
 
 	# Extra arguments to be passed to the command
-	FORMAT = "`(add/remove/list) (channel_id)`"
+	FORMAT = "`(add/remove/list) (channel_id or link)`"
 	CATEGORY = "SERVER"
 	EMOJI = CATEGORIES[CATEGORY]
 	ALIASES = ['bot_channel','bot_channels','botchannels']
@@ -28,17 +27,17 @@ class Botchannel(cmd.Cog):
 	# Slash version of the command due to function signature incompatibility
 	@cmd.slash_command(name="botchannel")
 	@cmd.cooldown(1, 1)
-	@cmd.check(is_staff_here)
+	@cmd.check(member_check)
 	async def slash_botchannel(self, ctx, mode, channel=None):
 		'''
 		Manages the whitelist for channels members can use bot commands in.
 		'''
-
+		await ctx.response.defer()
 		await self.botchannel(ctx, mode, arg2=channel)
 
 		return
 
-	@cmd.check(is_staff_here)
+	@cmd.check(member_check)
 	@cmd.command(aliases=ALIASES)
 	@cmd.cooldown(1, 1)
 	async def botchannel(self, ctx, arg1, arg2=None):
@@ -46,6 +45,9 @@ class Botchannel(cmd.Cog):
 			await ctx.reply("This command cannot be used in DMs!")
 			return
 		if arg1 in ['remove','add']:
+			if not is_staff_here(ctx):
+				await ctx.respond("Only staff can use this subcommand! Try `p!bot_channel list`.")
+				return 
 			if arg2 is None:
 				await ctx.respond("Please include a channel to {} the whitelist!".format(arg1+{'remove':' from','add':' to'}[arg1]))
 				return

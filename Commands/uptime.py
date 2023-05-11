@@ -30,7 +30,7 @@ class Uptime(cmd.Cog):
 		'''
 		Returns the amount of time since the bot was last started.
 		'''
-
+		await ctx.response.defer()
 		await self.uptime(ctx)
 
 		return

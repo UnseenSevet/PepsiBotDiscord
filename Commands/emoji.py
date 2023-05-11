@@ -30,7 +30,7 @@ class Emoji(cmd.Cog):
 		'''
 		Generates a emoji for the provided name, or if not specified, the user.
 		'''
-
+		await ctx.response.defer()
 		await self.emoji(ctx, emoji=emoji)
 
 		return

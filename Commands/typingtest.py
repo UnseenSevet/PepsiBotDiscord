@@ -31,7 +31,7 @@ class Typingtest(cmd.Cog):
 		'''
 		A game that tests your typing speed.
 		'''
-
+		await ctx.response.defer()
 		await self.typingtest(ctx)
 
 		return

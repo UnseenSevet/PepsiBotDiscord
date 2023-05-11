@@ -33,7 +33,7 @@ class Bsona(cmd.Cog):
 		'''
 		Generates a bsona for the provided name, or if not specified, the user.
 		'''
-
+		await ctx.response.defer()
 		await self.bsona(ctx, name=name)
 
 		return

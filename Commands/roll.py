@@ -32,7 +32,7 @@ class Roll(cmd.Cog):
 		'''
 		Rolls up to 10 sets of dice specified as <count>d<value>+offset, such as 1d6 or 5d10+7.
 		'''
-
+		await ctx.response.defer()
 		await self.roll(ctx, args=rolls)
 
 		return

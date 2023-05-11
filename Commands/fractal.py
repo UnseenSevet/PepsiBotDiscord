@@ -55,7 +55,7 @@ class Fractal(cmd.Cog):
 		'''
 		Generates a fractal based off of a given seed.
 		'''
-
+		await ctx.response.defer()
 		await self.fractal(ctx, template=template)
 
 		return

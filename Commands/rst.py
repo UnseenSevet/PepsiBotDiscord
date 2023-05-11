@@ -30,7 +30,7 @@ class Rst(cmd.Cog):
 		'''
 		Picks a random string submitted to the rst (randomly selected text) database.
 		'''
-
+		await ctx.response.defer()
 		await self.rst(ctx, args=args)
 
 		return

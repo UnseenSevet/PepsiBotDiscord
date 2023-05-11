@@ -32,7 +32,7 @@ class Spoiler(cmd.Cog):
 		'''
 		Generates a 49 message spoiler wall with a closing message. 
 		'''
-
+		await ctx.response.defer()
 		await self.spoiler(ctx, template)
 
 		return

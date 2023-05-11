@@ -230,7 +230,7 @@ class Minesweeper(cmd.Cog):
 		'''
 		Generates a minesweeper window.
 		'''
-
+		await ctx.response.defer()
 		await self.minesweeper(ctx, args=args)
 
 		return

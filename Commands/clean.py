@@ -69,7 +69,7 @@ class Clean(cmd.Cog):
 		'''
 		Cleans out a channel of a certain amount of messages, using certain conditions.
 		'''
-
+		await ctx.response.defer()
 		await self.clean(ctx, _limit=_limit, _since=_since, _from=_from, is_silent=is_silent)
 
 		return

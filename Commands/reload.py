@@ -38,7 +38,7 @@ class Reload(cmd.Cog):
 		'''
 		Reloads several settings on the bot.
 		'''
-
+		await ctx.response.defer()
 		await self.reload(ctx)
 
 		return

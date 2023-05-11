@@ -30,7 +30,7 @@ class Server_list(cmd.Cog):
 		'''
 		Returns a list of all servers the bot is in currently.
 		'''
-
+		await ctx.response.defer()
 		await self.server_list(ctx)
 
 		return

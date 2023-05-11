@@ -78,7 +78,7 @@ class Role(cmd.Cog):
 		'''
 
 		role_args = role_command.split()
-
+		await ctx.response.defer()
 		await self.role(ctx, *role_args)
 
 		return

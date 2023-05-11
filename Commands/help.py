@@ -41,7 +41,6 @@ class Help(cmd.Cog):
 		'''
 		Command that shows helpful info pages about the bot and its commands.
 		'''
-
 		await self.help(ctx, command_or_page)
 
 		return
@@ -182,7 +181,7 @@ class Help(cmd.Cog):
 			<@179686717534502913> for making the bot this is forked off of.
 
 			**PepsiBot** supports both prefixed commands (using the prefix 
-			**`{PREFIX}`**) as well as slash command versions of every single command.
+			**`{PREFIX}`**) as well as slash command versions of nearly every single command. (Commands with an asterisk do not support slash commands.)
 
 			Use `{PREFIX}help (command/category)` or select an option below for more information.
 			"""
@@ -194,7 +193,7 @@ class Help(cmd.Cog):
 
 			for cmd_n, cmd_obj in full_info.items():
 				while cmd_n[0] == "_": cmd_n = cmd_n[1:]
-				cmd_list[cmd_obj.CATEGORY].append(f"`{PREFIX + cmd_n.lower()}`")
+				cmd_list[cmd_obj.CATEGORY].append(f"`{PREFIX + cmd_n.lower()}`{'*' if 'does not support slash commands' in cmd_obj.__doc__ else ''}")
 
 			for ct, cmds in cmd_list.items():
 				if len(cmds) > 0:

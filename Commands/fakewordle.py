@@ -31,7 +31,7 @@ class Fakewordle(cmd.Cog):
 		'''
 		Generates fake Wordle results.
 		'''
-
+		await ctx.response.defer()
 		await self.fakewordle(ctx)
 
 		return

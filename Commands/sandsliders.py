@@ -646,7 +646,7 @@ class Sandsliders(cmd.Cog):
 		'''
 		Generates a sandsliders window.
 		'''
-
+		await ctx.response.defer()
 		await self.sandsliders(ctx, args=args)
 
 		return

@@ -29,7 +29,7 @@ class Math(cmd.Cog):
 		'''
 		Using this command will evaluate the arguments provided as a mathematical or logical expression. 
 		'''
-
+		await ctx.response.defer()
 		await self.math(ctx, expression=expression)
 
 		return

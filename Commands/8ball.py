@@ -33,7 +33,7 @@ class _8ball(cmd.Cog):
 		'''
 		Ask the 8ball a question and it will bestow its wisdom upon you.
 		'''
-
+		await ctx.response.defer()
 		await self._8ball(ctx, query=query)
 
 		return
@@ -98,4 +98,5 @@ class _8ball(cmd.Cog):
 		e = dc.Embed(title="🎱 The 8ball says...",description=answer[0], color=answer[1])	
 		e.set_footer(text=f"Command run by {command_user(ctx).name}")	
 		await ctx.respond(embed=e,allowed_mentions = dc.AllowedMentions.none())
+		return
 			

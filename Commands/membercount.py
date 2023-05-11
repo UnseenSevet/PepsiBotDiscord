@@ -32,7 +32,7 @@ class Membercount(cmd.Cog):
 		'''
 
 		server_args = server.split(" ")
-
+		await ctx.response.defer()
 		await self.membercount(ctx, *server_args)
 
 		return

@@ -30,7 +30,7 @@ class Talk(cmd.Cog):
 		'''
 
 		msg_args = message_content.split(" ")
-
+		await ctx.response.defer()
 		await self.talk(ctx, channel_id, msg_args=msg_args)
 
 		return

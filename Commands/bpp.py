@@ -12,12 +12,12 @@ def setup(BOT):
 
 class Bpp(cmd.Cog):
 	'''
-	Using `p!bpp run [code]` allows you to run `[code]` as B++ source code. Using `p!bpp info 
-	(page)` displays a paged list of all bpp programs by use count, while using `p!bpp info (program)` 
-	displays information and the source code of a specific program. `p!bpp create [program] [code]` can be used 
-	to save code into a specific program name, which can be edited by its creator with `p!bpp edit [program] 
-	[newcode]` or deleted with `p!bpp delete [program]`. You can check your existing programs with `p!bpp tags`. 
-	Finally, `p!bpp [program] (args)` allows you to run any saved program. 
+	Using `p!b++ run [code]` allows you to run `[code]` as B++ source code. Using `p!b++ info 
+	(page)` displays a paged list of all bpp programs by use count, while using `p!b++ info (program)` 
+	displays information and the source code of a specific program. `p!b++ create [program] [code]` can be used 
+	to save code into a specific program name, which can be edited by its creator with `p!b++ edit [program] 
+	[newcode]` or deleted with `p!b++ delete [program]`. You can check your existing programs with `p!b++ tags`. 
+	Finally, `p!b++ [program] (args)` allows you to run any saved program. 
 	The full documentation for all bpp program functionality is displayed in this document: 
 	https://docs.google.com/document/d/1pU2ezYE505sAPEmnSMNx9yfzD7FT4_KmICOkEUpMSA8/edit?usp=sharing
 	'''
@@ -26,7 +26,7 @@ class Bpp(cmd.Cog):
 	FORMAT = "(args)"
 	CATEGORY = "FUN"
 	EMOJI = CATEGORIES[CATEGORY]
-	ALIASES = ['b++','tag']
+	ALIASES = ['bpp','tag']
 
 	def __init__(self, BRAIN):
 		self.BRAIN = BRAIN
@@ -38,12 +38,12 @@ class Bpp(cmd.Cog):
 		'''
 		Run B++ code or manage a program.
 		'''
-
+		await ctx.response.defer()
 		await self.bpp(ctx, args=args)
 
 		return
 	
-	@cmd.command(aliases=ALIASES)
+	@cmd.command(aliases=ALIASES, name="b++")
 	@cmd.cooldown(1, 3, cmd.BucketType.user)
 	@cmd.check(member_check)
 	async def bpp(self, ctx, *, args=None):

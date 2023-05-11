@@ -34,7 +34,7 @@ class Restart(cmd.Cog):
 		'''
 		Forces a bot restart upon usage.
 		'''
-
+		await ctx.response.defer()
 		await self.restart(ctx, debug=debug)
 		return
 

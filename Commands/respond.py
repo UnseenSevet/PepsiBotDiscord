@@ -1,5 +1,5 @@
 from Helper.__comp import *
-from random import random
+from random import random, randint
 from time import time
 from datetime import *
 from Helper.__config import STARTUP
@@ -9,6 +9,11 @@ import random
 
 def setup(BOT):
 	BOT.add_cog(Respond(BOT))
+
+async def edit(msg, text):
+	try: await msg.edit(content=text)
+	except: await msg.edit_original_response(content=text)
+	return
 
 class Respond(cmd.Cog):
 	'''
@@ -32,7 +37,7 @@ class Respond(cmd.Cog):
 		'''
 		Generates a TWOW response via a markov chain algorithm.
 		'''
-
+		await ctx.response.defer()
 		await self.respond(ctx, limit=limit, order=order, count=count)
 
 		return
@@ -41,8 +46,9 @@ class Respond(cmd.Cog):
 	@cmd.cooldown(1, 3, cmd.BucketType.user)
 	@cmd.check(member_check)
 	async def respond(self, ctx, limit="10w", order=5, count=1):
-		try: await ctx.response.defer()
-		except: pass
+
+		msg = await ctx.reply("**Generating responses... 0% done**\n`[                    ]`")
+
 		try:
 			length = min(2000,max(0,int(limit[:-1])))
 			lentype = "wc"["wc".find(limit[-1])]
@@ -63,7 +69,15 @@ class Respond(cmd.Cog):
 
 		markovDict = {}
 		
+		percentDone = 3
+		maxVal = len(responsesStr) - CHAIN_ORDER + 1
+		interval = randint(80000, 120000)
 		for i in range(len(responsesStr) - CHAIN_ORDER + 1):
+
+			percentDone += 97/maxVal
+
+			if i % interval == 0: await edit(msg,f"**Generating response{'s' if count != 1 else ''}... {round(percentDone,2)}% done**\n`[{'#' * round(percentDone/5)}{' ' * round(20-percentDone/5)}]`")
+
 			endNum = i + CHAIN_ORDER
 			
 			chars = responsesStr[i : endNum]
@@ -76,6 +90,8 @@ class Respond(cmd.Cog):
 			else:
 				markovDict[chars].append(nextChar)
 		genresponses = ""
+
+		await edit(msg,f"**Generating responses... 9{randint(8,9)}.{randint(0,9)}{randint(0,9)}% done**\n`[####################]`")
 
 		for x in range(count):
 
@@ -111,5 +127,5 @@ class Respond(cmd.Cog):
 
 			if genresponse == "!" and length == 0: genresponse = "⚠️ Command output is an empty string."
 			genresponses += genresponse + "\n"
-		await ctx.respond(genresponses[:2000])
+		await edit(msg, genresponses[:2000])
 		return

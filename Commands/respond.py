@@ -23,7 +23,7 @@ class Respond(cmd.Cog):
 
 	# Extra arguments to be passed to the command
 	FORMAT = "(type) (order)"
-	CATEGORY = "FUN"
+	CATEGORY = "TWOW"
 	EMOJI = CATEGORIES[CATEGORY]
 	ALIASES = ['response']
 
@@ -62,7 +62,7 @@ class Respond(cmd.Cog):
 		try: count = min(10,max(1,int(count)))
 		except: count = 1
 
-		with open("DB/responses.txt") as file:
+		with open("Helper/Assets/responses.txt") as file:
 			responses = file.readlines()
 
 		responsesStr = "".join(responses)

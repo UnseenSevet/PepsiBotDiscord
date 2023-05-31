@@ -1,6 +1,6 @@
 from Helper.__comp import *
 
-from Helper.__functions import plural, is_whole, smart_lookup, is_dm, is_whole
+from Helper.__functions import plural, is_whole, smart_lookup, is_dm, is_whole, is_dev
 from Helper.__action_functions import specify_server
 from Helper.__server_functions import is_staff_here, modify_server, get_server_json, member_check
 import discord, re, asyncio
@@ -45,7 +45,7 @@ class Botchannel(cmd.Cog):
 			await ctx.reply("This command cannot be used in DMs!")
 			return
 		if arg1 in ['remove','add']:
-			if not is_staff_here(ctx):
+			if not is_staff_here(ctx) and not is_dev(ctx):
 				await ctx.respond("Only staff can use this subcommand! Try `p!bot_channel list`.")
 				return 
 			if arg2 is None:

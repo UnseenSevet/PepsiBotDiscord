@@ -78,7 +78,7 @@ class Help(cmd.Cog):
 
 			page_options.append(
 				dc.SelectOption(label=f"Command: {PREFIX}{cmd_n.lower()}",
-				value=cmd_n, emoji=cmd_obj.EMOJI)
+				value=cmd_n, emoji=cmd_obj.EMOJI[0])
 			)
 
 			if not found_term:
@@ -172,7 +172,7 @@ class Help(cmd.Cog):
 		while term[0] == "_": term = term[1:]
 
 		if term == "general_help_page": # No term provided = general bot help
-			help_embed.title = CATEGORIES["PEPSI"] + " **PepsiBot**"
+			help_embed.title = CATEGORIES["PEPSI"][0] + " **PepsiBot**"
 
 			help_embed.description = m_line(f"""
 			A Discord bot that I made mostly for fun.
@@ -183,8 +183,8 @@ class Help(cmd.Cog):
 			**PepsiBot** supports both prefixed commands (using the prefix 
 			**`{PREFIX}`**) as well as slash command versions of nearly every single command. (Commands with an asterisk do not support slash commands.)
 
-			Use `{PREFIX}help (command/category)` or select an option below for more information.
-			"""
+			Use `{PREFIX}help (command/category)` for more information.
+			""" # or select an option below 
 			)
 
 			help_embed.set_thumbnail(url=self.BRAIN.user.display_avatar.url)
@@ -197,7 +197,7 @@ class Help(cmd.Cog):
 
 			for ct, cmds in cmd_list.items():
 				if len(cmds) > 0:
-					help_embed.add_field(name=f"{CATEGORIES[ct]} {f_caps(ct)} category", 
+					help_embed.add_field(name=f"{' '.join(CATEGORIES[ct])} category", 
 					value="\n".join(cmds), inline=True)
 
 		else: # Search term is parsed as a command

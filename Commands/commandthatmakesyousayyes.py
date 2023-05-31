@@ -55,6 +55,6 @@ class Commandthatmakesyousayyes(cmd.Cog):
 			myWebhook = await channel.create_webhook(name=f"PepsiHook @ {channel.name}", avatar=await self.BRAIN.user.avatar.read())
 			
 		me = command_user(ctx)
-		await myWebhook.send(content="yes", username=me.display_name, avatar_url=me.avatar.url)
+		await myWebhook.send(content="yes", username=me.display_name, avatar_url=me.display_avatar.url)
 		if is_slash_cmd(ctx): await ctx.respond("** **",ephemeral=True,delete_after=0)
 		return

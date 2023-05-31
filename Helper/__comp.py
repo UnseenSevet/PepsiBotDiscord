@@ -5,18 +5,25 @@
 
 # Categories are organized with a name and a display emoji for the help pages
 
+
+
 CATEGORIES = {
-	"PEPSI": "<:pepsibot:1086507439500824597>",
+	"PEPSI": ["<:pepsibot:1086507439500824597>","Pepsi"],
 	# BRAIN category: commands tied directly to the bot
 
-	"SERVER": "📑",
+	"SERVER": ["📑", "Server"],
 	# SERVER category: commands that are server-specific, including staff action commands
 
-    "UTILITY": "🛠️",
+    "UTILITY": ["🛠️","Utility"],
     # UTILITY category: commands that are for some sort of use, generally available for all    
     
-    "FUN": "🎉",
+    "FUN": ["🎉","Fun"],
     # FUN category: just for funsies lol
+
+	"GAMES": ["🎮", "Games"],
+
+	"TWOW": ["📚","TWOW"],
+	# TWOW category: commands related to TWOWing
 }
 
 # These are the main Discord-related imports common to scripts

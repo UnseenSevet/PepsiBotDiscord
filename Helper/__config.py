@@ -26,7 +26,7 @@ intents.members = True
 intents.message_content = True
 
 BRAIN = bridge.Bot(command_prefix=PREFIX, intents=intents) # debug_guilds=[1095118334695051344]
-BRAIN.allowed_mentions = AllowedMentions(replied_user=False, everyone=False)
+BRAIN.allowed_mentions = AllowedMentions(replied_user=False)
 BRAIN.remove_command('help')
 
 STARTUP = time()

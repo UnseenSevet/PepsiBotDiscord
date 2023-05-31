@@ -1,7 +1,9 @@
 from Helper.__functions import is_whole
 from Helper.__bpp_functions import express_array, safe_cut, FUNCTIONS
 #from Helper.__db import Database
-import json
+from PIL import Image, ImageDraw, ImagePath, ImageOps
+import json, os
+from Helper.__comp import *
 
 def add_tag(args):
 	with open("DB/bpp_programs.json","r") as f:
@@ -99,6 +101,8 @@ def run_bpp_program(code, p_args, author, runner):
 	# Pointers for tag and function organization
 	tag_level = 0
 	tag_code = []
+	global tag_images
+	tag_images = []
 	tag_str = lambda: ' '.join([str(s) for s in tag_code])
 
 	backslashed = False	# Flag for whether to unconditionally escape the next character
@@ -228,7 +232,7 @@ def run_bpp_program(code, p_args, author, runner):
 
 	base_keys = [k for k in functions if is_whole(k)]
 
-	type_list = [int, float, str, list]
+	type_list = [int, float, str, list, Image.Image]
 	def var_type(v):
 		try:
 			return type_list.index(type(v))
@@ -236,6 +240,7 @@ def run_bpp_program(code, p_args, author, runner):
 			raise TypeError(f"Value {safe_cut(v)} could not be attributed to any valid data type")
 	
 	def evaluate_result(k):
+		global tag_images
 		v = functions[k]
 
 		if type(v) == tuple:
@@ -326,6 +331,16 @@ def run_bpp_program(code, p_args, author, runner):
 			elif result[0] == "aa":
 				result = p_args
 		
+			elif result[0] == 'atc':
+				if len(tag_images) >= 2:
+					raise ValueError("Cannot attach more than two images to the program output!")
+				im = result[1]
+				path = f'Helper/Assets/{runner.id}_tagimg_{len(tag_images)}.png'
+				im.save(path,"PNG")
+				tag_images += [dc.File(path)]
+				os.remove(path)
+				result = ""
+		
 		functions[k] = result
 		return result
 
@@ -344,7 +359,7 @@ def run_bpp_program(code, p_args, author, runner):
 
 	output = output.replace("{}", "\t").replace("{", "{{").replace("}", "}}").replace("\t", "{}")
 
-	return output.format(*results).replace("\v", "{}")
+	return (output.format(*results).replace("\v", "{}"),tag_images)
 
 if __name__ == "__main__":
 	program = input("Program:\n\t")

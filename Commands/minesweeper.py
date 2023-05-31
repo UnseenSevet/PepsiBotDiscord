@@ -216,7 +216,7 @@ class Minesweeper(cmd.Cog):
 
 	# Extra arguments to be passed to the command
 	FORMAT = "`(new) (args)`"
-	CATEGORY = "FUN"
+	CATEGORY = "GAMES"
 	EMOJI = CATEGORIES[CATEGORY]
 	ALIASES = ['mine','ms']
 

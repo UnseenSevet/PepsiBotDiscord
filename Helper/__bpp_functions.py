@@ -1,6 +1,8 @@
-import random, statistics, re, itertools, time, math
+import random, statistics, re, itertools, time, math, os
 import numpy as np
-from Helper.__functions import is_float, is_whole, is_number, strip_alpha, match_count
+from Helper.__functions import is_float, is_whole, is_number, strip_alpha, match_count, is_hex
+from PIL import Image, ImageDraw, ImagePath, ImageOps
+import requests
 
 class ProgramDefinedException(Exception): # used in THROW
 	pass
@@ -69,17 +71,33 @@ def INDEX(a, b):
 		raise TypeError(f"Second parameter of INDEX function must be an integer: {safe_cut(b)}")
 	return a[int(b)]
 
-def SLICE(a, b, c):
-	if not is_whole(b):
+def SLICE(a, b='', c='', d=''):
+
+	if b == '':
+		b = None
+	if c == '':
+		c = None
+	if d == '':
+		d = None
+
+
+	if not is_whole(b) and b is not None:
 		raise TypeError(f"Second parameter of SLICE function must be an integer: {safe_cut(b)}")
-	if not is_whole(c):
+	if not is_whole(c) and c is not None:
 		raise TypeError(f"Third parameter of SLICE function must be an integer: {safe_cut(c)}")
+	if not is_whole(d) and d is not None:
+		raise TypeError(f"Fourth parameter of SLICE function must be an integer: {safe_cut(d)}")
+
+	if b is not None: b = int(b)
+	if c is not None: c = int(c)
+	if d is not None: d = int(d)
+
 	if type(a) == list:
 		to_cut = a
 	else:
 		to_cut = str(a)
 		
-	return to_cut[int(b):int(c)]
+	return to_cut[b:c:d]
 
 def ARRAY(*a):
 	return list(a)
@@ -123,6 +141,9 @@ def GLOBALDEFINE(a, b):
 		raise NameError(
 		f"Global variable name must be only letters, underscores and numbers, and cannot start with a number: {safe_cut(a)}")
 	
+	if type(b) == Image.Image:
+		raise TypeError("Global variables cannot be PIL.Image.Image!")
+
 	return ("gd", b)
 
 def GLOBALVAR(a):
@@ -418,6 +439,67 @@ def CHARFUNC(a):
 def GET_GUILD():
 	return ("gid", )
 
+def IMAGE(a, b='#ffffff', c='#ffffff'):
+
+
+	if type(a) == list:
+		if len(a) != 2: raise ValueError(f"IMAGE function paramater is not 2 elements long: {safe_cut(a)}")
+		if not is_hex(str(b)): raise ValueError(f"IMAGE function paramater is not a valid hex code: {safe_cut(b)}")
+		for x in a:
+			if not is_whole(x) or int(x) > 1024: raise ValueError(f"IMAGE function paramater {safe_cut(a)} contains value exceeding the limit of 1024: {x}")
+		out = Image.new("RGBA", tuple([int(x) for x in a]), b)
+	else:
+
+		if not is_whole(a):
+			ftype = a.split('/')[-1]
+			if ftype.split('.')[-1].split('?')[0] not in ['png', 'jpg', 'jpeg', 'gif', 'webp']:
+				raise ValueError(f"IMAGE function paramater is not a valid image link: {safe_cut(a)}")
+			myfile = requests.get(a)
+			open(f"Helper/Assets/temp_{ftype}", 'wb').write(myfile.content)
+			out = Image.open(f"Helper/Assets/temp_{ftype}")
+			out = out.convert("RGBA")
+			if max(out.size) > 1024:
+				mult = 1024/max(out.size)
+				out = out.resize((math.floor(out.size[0]*mult),math.floor(out.size[1]*mult)),resample=Image.BOX)
+			os.remove(f"Helper/Assets/temp_{ftype}")
+			return out
+
+		a = int(a)
+		if a > 1024:
+			raise ValueError(f"IMAGE function parameter exceeds the limit of 1024: {safe_cut(a)}")
+		if not is_whole(b):
+			raise ValueError(f"IMAGE function parameter is not an integer: {safe_cut(b)}")	
+		b = int(b)
+		if b > 1024:
+			raise ValueError(f"IMAGE function parameter exceeds the limit of 1024: {safe_cut(b)}")
+		if not is_hex(str(c)): raise ValueError(f"IMAGE function paramater is not a valid hex code: {safe_cut(c)}")
+		out = Image.new("RGBA", (a,b), c)
+	return out
+
+def PASTE(a,b,c,d=None):
+	if type(a) != Image.Image: raise ValueError(f"PASTE function paramater is not a valid image: {safe_cut(a)}")
+	if type(b) != Image.Image: raise ValueError(f"PASTE function paramater is not a valid image: {safe_cut(b)}")
+	a = a.copy()
+	if type(c) == list:
+		if len(c) != 2: raise ValueError(f"PASTE function paramater is not 2 elements long: {safe_cut(c)}")
+		for x in c:
+			if not is_whole(x) or int(x) > 1024: raise ValueError(f"IMAGE function paramater {safe_cut(c)} contains value exceeding the limit of 1024: {x}")
+		a.paste(b, tuple([int(x) for x in c]))
+	else:
+		if not is_whole(c):
+			raise ValueError(f"IMAGE function parameter is not an integer: {safe_cut(c)}")
+		if not is_whole(d):
+			raise ValueError(f"IMAGE function parameter is not an integer: {safe_cut(d)}")
+
+		a.paste(b,(int(c),int(d)))
+	return a
+
+def ATTACH(a):
+	if type(a) != Image.Image: raise ValueError(f"ATTACH function paramater is not a valid image: {safe_cut(a)}")
+	a = a.copy()
+	rescale_factor = max(math.floor(512/max(a.size)),1)
+	return ("atc", a.resize((a.size[0]*rescale_factor,a.size[1]*rescale_factor),resample=Image.BOX))
+
 FUNCTIONS = {
 	"MATH": MATHFUNC,
 	"RANDINT": RANDINT,
@@ -464,6 +546,9 @@ FUNCTIONS = {
 	"SETINDEX": SETINDEX,
 	"CHAR" : CHARFUNC,
 	"UNICODE" : UNICODE,
-	"GUILD" : GET_GUILD
+	"GUILD" : GET_GUILD,
+	"IMAGE": IMAGE,
+	"PASTE": PASTE,
+	"ATTACH": ATTACH
 }
 

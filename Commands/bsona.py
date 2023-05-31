@@ -19,7 +19,7 @@ class Bsona(cmd.Cog):
 
 	# Extra arguments to be passed to the command
 	FORMAT = "(name)"
-	CATEGORY = "UTILITY"
+	CATEGORY = "TWOW"
 	EMOJI = CATEGORIES[CATEGORY]
 	ALIASES = ['book']
 

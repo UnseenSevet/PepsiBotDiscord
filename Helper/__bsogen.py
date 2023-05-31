@@ -46,7 +46,7 @@ def bsona(namex):
     if states[(ord(name[0])-ord('a'))%26*2+(ord(name[1])-ord('a'))%2] in ["MS", "AZ", "CA", "IL", "MT", "DC"]: #thesestates have a more interesting left border than right border so i flipped them
         state = ImageOps.mirror(state)
 
-    limbs = Image.open("Helper/Assets/Book/book_overlay.png")
+    limbs = Image.open("Helper/Assets/Book/bso_overlay.png")
     bg = Image.open("Helper/Assets/Book/cover_overlay.png")
 
     #here i'm generating a solid color image that will get masked over using bg

@@ -8,6 +8,8 @@ BOT_DEVELOPERS = [
 	549350426642743297, # pepsi#1213
 ]
 
+def is_hex(s):
+	return re.sub("^#[0-9A-Fa-f]{6}$", s, "") == ""
 
 def get_members(bot, get_bots=False):
 	members = []

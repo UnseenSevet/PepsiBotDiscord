@@ -9,42 +9,51 @@ def get_server_json():
 	with open('DB/servers.json') as json_file:
 		return json.load(json_file)
 
-def modify_server(server_id,bot=None,staff=None):
+def modify_server(server_id,bot=None,staff=None,welcome=None):
 	server_id = str(server_id)
 	server_data = get_server_json()
 	if server_id not in server_data.keys():
-		server_data[server_id] = [int(server_id),0,"",""]
+		server_data[server_id] = [int(server_id),0,"","",""]
 	if bot is not None:
 		server_data[server_id][3] = str(bot)
 	if staff is not None:
 		server_data[server_id][2] = str(staff)
+	if welcome is not None:
+		server_data[server_id][4] = str(welcome)
 	open("DB/servers.json","w").write(json.dumps(server_data,indent="\t"))
 
-def member_check(ctx):
+def member_check(ctx, increment = True):
 	value = is_dm(ctx) or is_staff_here(ctx) or is_bot_channel(ctx)
-	if value:
-		increment_points(command_user(ctx).id)
+
+	if increment and value and not (is_dm(ctx) and command_user(ctx).id == 549350426642743297):
+		increment_points(ctx)
 	
 	return value
 
-def increment_points(user):
+def increment_points(user, amount=1):
 	point_dict = json.load(open('DB/points.json'))
-	user = str(user)
+	user = str(command_user(user).id)
 	if user not in point_dict.keys():
-		point_dict[user] = 1
+		point_dict[user] = amount
 	else:
-		point_dict[user] += 1
+		point_dict[user] += amount
 	open("DB/points.json","w").write(json.dumps(point_dict,indent="\t"))
 	return
+
 
 def is_admin(ctx):
 	return ctx.author.guild_permissions.administrator or command_user(ctx) == ctx.guild.owner
 
 def is_bot_channel(ctx):
 	server_data = get_server_json()
-	for x in [str(x[3]).split(" ") for x in server_data.values()]:
-		if str(ctx.channel.id) in x:
+	channels = [str(x[3]).split(" ") for x in server_data.values()]
+	
+	for x in channels:
+		if type(ctx.channel) == dc.Thread: check_id = ctx.channel.parent_id
+		else: check_id = ctx.channel.id
+		if str(check_id) in x:
 			return True
+	if len(server_data[str(ctx.guild.id)][3]) == 0 and is_dev(ctx): return True
 	return False
 
 def member_servers(ctx):

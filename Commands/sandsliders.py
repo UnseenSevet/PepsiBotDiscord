@@ -632,7 +632,7 @@ class Sandsliders(cmd.Cog):
 
 	# Extra arguments to be passed to the command
 	FORMAT = "`(args)`"
-	CATEGORY = "FUN"
+	CATEGORY = "GAMES"
 	EMOJI = CATEGORIES[CATEGORY]
 	ALIASES = ['sand','sandslider','sands']
 
@@ -655,6 +655,8 @@ class Sandsliders(cmd.Cog):
 	@cmd.cooldown(1, 1, cmd.BucketType.user)
 	@cmd.check(member_check)
 	async def sandsliders(self, ctx, *, args=''):
+
+		args = args.split(" ")
 
 		if args[0] in ['level','load','import','play']:
 			if len(args) > 1 or args[0] == 'level':

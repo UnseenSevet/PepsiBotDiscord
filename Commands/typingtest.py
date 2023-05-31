@@ -17,7 +17,7 @@ class Typingtest(cmd.Cog):
 
 	# Extra arguments to be passed to the command
 	FORMAT = "`[]`"
-	CATEGORY = "FUN"
+	CATEGORY = "GAMES"
 	EMOJI = CATEGORIES[CATEGORY]
 	ALIASES = ['typetest', 'tt']
 

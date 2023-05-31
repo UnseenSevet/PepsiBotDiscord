@@ -50,6 +50,7 @@ class Bpp(cmd.Cog):
 		if args==None: args=""
 		args = args.split(" ")
 		args = [""]+[x for x in args]
+		images = []
 
 		if args == ["", ""]:
 			await ctx.reply("Include a subcommand!")
@@ -338,7 +339,7 @@ class Bpp(cmd.Cog):
 
 			elif len(message.attachments) != 0:
 				try:
-					if message.attachments[0].size >= 60000:
+					if message.attachments[0].size >= 100000:
 						await ctx.reply("Your program must be under **60KB**.")
 						return
 
@@ -388,7 +389,7 @@ class Bpp(cmd.Cog):
 			runner = ctx.author
 			
 		try:
-			program_output = run_bpp_program(program, program_args, author, runner)
+			program_output, images = run_bpp_program(program, program_args, author, runner)
 		except ProgramDefinedException as e:
 			await ctx.reply(embed=discord.Embed(title=f'{type(e).__name__}', description=f'```{e}```'), allowed_mentions = discord.AllowedMentions.none())
 			return
@@ -399,13 +400,13 @@ class Bpp(cmd.Cog):
 		if len(program_output.strip()) == 0: program_output = "\u200b"
 			
 		if len(program_output) <= 2000:
-			await ctx.reply(program_output, allowed_mentions = discord.AllowedMentions.none())
+			await ctx.reply(program_output, allowed_mentions = discord.AllowedMentions.none(), files=images)
 		elif len(program_output) <= 4096:
-			await ctx.reply(embed = discord.Embed(description = program_output, type = "rich"), allowed_mentions = discord.AllowedMentions.none())
+			await ctx.reply(embed = discord.Embed(description = program_output, type = "rich"), allowed_mentions = discord.AllowedMentions.none(), files=images)
 		else:
 			open(f"DB/temp/{message.id}out.txt", "w", encoding="utf-8").write(program_output[:150000])
 			outfile = discord.File(f"DB/temp/{message.id}out.txt")
 			os.remove(f"DB/temp/{message.id}out.txt")
-			await ctx.reply("⚠️ `Output too long! Sending first 150k characters in text file.`", file=outfile)
+			await ctx.reply("⚠️ `Output too long! Sending first 150k characters in text file.`", files=[outfile]+images)
 		
 	

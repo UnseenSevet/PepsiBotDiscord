@@ -83,6 +83,8 @@ class Talk(cmd.Cog):
 			await ctx.respond("💀 **The message to be sent cannot be empty!**")
 			return
 
+
+		message_content = message_content.replace('\\ignore','')
 		await chosen_channel.send(message_content)
 		await ctx.respond(
 		f"✅ **Message successfully sent {mtype}{channel_id}>:**\n> \t{message_content}")

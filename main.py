@@ -1,11 +1,11 @@
 import discord as dc
 from discord import *
-
+from Helper.__comp import *
 from Helper.__config import TOKEN, BRAIN, STARTUP
-from Helper.__functions import m_line, is_slash_cmd, get_members
-from Helper.__server_functions import get_server_json, member_check, is_staff_here, modify_server
+from Helper.__functions import m_line, is_slash_cmd, get_members, command_user
+from Helper.__server_functions import get_server_json, member_check, is_staff_here, modify_server, increment_points
 from discord.ext import commands as cmd
-
+from Commands.help import Help
 from time import time
 import os, json
 import traceback as tb
@@ -26,6 +26,11 @@ async def on_guild_join(guild):
 	await guild.owner.send(embed=e)
 	await BRAIN.change_presence(status=dc.Status.online,
 	activity=dc.Activity(type=dc.ActivityType.watching, name="{} servers with {} members".format(len(BRAIN.guilds), len(get_members(BRAIN)))))
+	print(f"PepsiBot was added to server")
+	print(datetime.utcnow(), "-", time())
+	print(f"{guild.name} - {guild.id})")
+	try: print(f"Owner is {guild.owner.name}#{guild.owner.discriminator} - {guild.owner.id}\n")
+	except: pass
 
 @BRAIN.event
 async def on_guild_remove(guild):
@@ -33,6 +38,36 @@ async def on_guild_remove(guild):
 	try: del server_data[str(guild.id)]
 	except: pass
 	open("DB/servers.json","w").write(json.dumps(server_data,indent="\t"))
+	print(f"PepsiBot was removed from server")
+	print(datetime.utcnow(), "-", time())
+	print(f"{guild.name} - {guild.id})")
+	try: print(f"Owner is {guild.owner.name}#{guild.owner.discriminator} - {guild.owner.id}\n")
+	except: pass
+
+@BRAIN.event
+async def on_message(message):
+	if message.author.bot and message.content.startswith("p!") and message.author != BRAIN.user:
+		await message.reply("You must solve this CAPTCHA to prove you're not a robot:")
+
+	await BRAIN.process_commands(message)
+
+@BRAIN.event
+async def on_member_join(member):
+	try: channel = BRAIN.get_channel(int(get_server_json()[str(member.guild.id)][4]))
+	except: return
+
+	embed = dc.Embed(title=f"Welcome, {member.display_name}!",description=f"<@{member.id}> just joined **{member.guild.name}**.\n(`{member.id}`)",color=0x33dd33)
+	embed.set_footer(icon_url=member.display_avatar.url, text="Enjoy your stay!")
+	await channel.send(embed=embed)
+
+@BRAIN.event
+async def on_member_remove(member):
+	try: channel = BRAIN.get_channel(int(get_server_json()[str(member.guild.id)][4]))
+	except: return
+
+	embed = dc.Embed(title=f"Farewell, {member.display_name}!",description=f"<@{member.id}> just left **{member.guild.name}**.\n(`{member.id}`)",color=0xdd3333)
+	embed.set_footer(icon_url=member.display_avatar.url, text="We will miss you!")
+	await channel.send(embed=embed)
 
 @BRAIN.event
 async def on_ready():
@@ -68,10 +103,11 @@ async def on_ready():
 		if arg.startswith("3_report_time:"):
 			restart_rep_t = int(arg[len("3_report_time:"):])/1000
 		
-	if restart_rep_t is not None:
+	if restart_rep_t is not None and restart_rep_ch is not None:
 		t_taken = round(time() - restart_rep_t, 2)
-		await restart_rep_ch.send(
+		try: await restart_rep_ch.send(
 			f"✅ **Successfully restarted PepsiBot** in {t_taken}s.\n")
+		except: pass
 
 	print("="*50, '\n')
 
@@ -103,23 +139,27 @@ async def on_application_command_error(ctx, error): # For slash commands
 
 async def error_handler(ctx, err):
 	if type(err) == cmd.errors.CommandNotFound:
-		if member_check(ctx) or is_staff_here(ctx): await ctx.respond(f"💀 This command or alias does not exist!")
+		if member_check(ctx, False) or is_staff_here(ctx): await ctx.respond(f"💀 This command or alias does not exist!")
 		return
 	
-	if type(err) == cmd.errors.MissingRequiredArgument:
-		await ctx.respond(f"💀 Looks like you forgot some arguments!")
+	if type(err) in [cmd.errors.MissingRequiredArgument, cmd.errors.ArgumentParsingError]:
+		help = Help(BRAIN)
+		help_embed, full_view, display_view = await help.help_page(term=ctx.command.name, cmd_user=command_user(ctx), full_view = View())
+		await ctx.respond(embed=help_embed)
+		increment_points(ctx, -1)
 		return
 	
 	if type(err) in [dc.errors.CheckFailure, cmd.errors.CheckFailure]:
-		if member_check(ctx) or is_staff_here(ctx): await ctx.respond("💀 You do not have permission to run this command!")
-		if not member_check(ctx) and is_slash_cmd(ctx): await ctx.respond("💀 You do not have permission to run this command here!", ephemeral=True)
+		if member_check(ctx, False) or is_staff_here(ctx): await ctx.respond("💀 You do not have permission to run this command!")
+		if not member_check(ctx, False) and is_slash_cmd(ctx): await ctx.respond("💀 You do not have permission to run this command here!", ephemeral=True)
 		return
 	
 	if type(err) == cmd.errors.CommandOnCooldown:
 		if is_slash_cmd(ctx):
-			await ctx.respond("🐌 **This command is on cooldown right now!**")
+			await ctx.respond("🐌 **This command is on cooldown right now!**", ephemeral=True)
 		else:
 			await ctx.message.add_reaction("🐌")
+		increment_points(ctx, -1)
 		return
 	
 	print("-[ERROR]- "*10)
@@ -131,14 +171,16 @@ async def error_handler(ctx, err):
 	try:
 		await ctx.respond(
 		f"💀 Uh oh! This command raised an error: **`{type(err).__name__}`**")
+		increment_points(ctx, -1)
 	except Exception as e:
 		print(f"\nCouldn't inform user of error due to {type(e).__name__}!")
+		increment_points(ctx, -1)
 	
 	print("-[ERROR]- "*10, '\n')
 
 @BRAIN.event
 async def on_command(ctx):
-	print("Prefixed command from", ctx.message.author)
+	print("Text command from", ctx.message.author)
 	print(datetime.utcnow(), "-", time())
 
 	try:
@@ -160,7 +202,7 @@ async def on_application_command(ctx):
 	except AttributeError:
 		print("Sent in DMs")
 	
-	print("-->", ctx.command, "\n")
+	print(f"--> /{ctx.command}\n")
 	
 print("="*50, '\n')
 

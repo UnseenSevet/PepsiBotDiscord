@@ -48,6 +48,7 @@ class Bookify(cmd.Cog):
 			path = f"Helper/Assets/{ctx.user.id}{image.filename}"
 			await image.save(path)
 			image = Image.open(path).convert("RGBA")
+			os.remove(path)
 		except:
 			ctx.reply("Please attach a proper image, as this could not be converted to a PNG.", ephemeral=True)
 

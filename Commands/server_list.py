@@ -75,7 +75,6 @@ class Server_list(cmd.Cog):
 
 	async def server_page(self, ctx = None, full_view=None, cmd_user=None):
 
-
 		page_n = 1
 		page_total = 1
 

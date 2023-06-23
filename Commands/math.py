@@ -46,6 +46,8 @@ class Math(cmd.Cog):
 			expression_string = expression.strip()
 			while expression_string.startswith("`") and expression_string.endswith("`"):
 				expression_string = expression_string[1:-1]
+
+			expression_string = expression_string.replace("while","#####")
 				
 			st = cexprtk.Symbol_Table(variables={"e": math.e, "phi": (1 + math.sqrt(5))/2},add_constants=True, functions={"rand":random.uniform})
 			e = cexprtk.Expression(expression_string, st)

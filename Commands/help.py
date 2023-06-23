@@ -208,6 +208,10 @@ class Help(cmd.Cog):
 					cmd_func = [c for c in cmd_obj.get_commands()
 					if not type(c).__name__.endswith('SlashCommand')][0]
 
+					if type(cmd_func).__name__.endswith('SlashCommandGroup'):
+						cmd_func = [x for x in cmd_func.walk_commands()][0]
+							
+
 					if cmd_func.cooldown is not None:
 						help_embed.add_field(name="💬 **Cooldown**", inline=True,
 						value=f"{int(cmd_func.cooldown.per)} second{plural(cmd_func.cooldown.per)}"

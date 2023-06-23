@@ -44,6 +44,7 @@ class Welcome(cmd.Cog):
 		if is_dm(ctx):
 			await ctx.reply("This command cannot be used in DMs!")
 			return
+		if type(arg1) == str: arg1 = arg1.strip()
 
 		if arg1 is None:
 			welcome = get_server_json()[str(ctx.guild.id)][4]
@@ -57,11 +58,15 @@ class Welcome(cmd.Cog):
 			await ctx.respond("Welcome channel has been disabled.")
 			return
 		else:
-			try: arg1 = str(int(re.sub("[<#> ]","",arg1)))
-			except:
-				await ctx.respond("Please include a valid channel to set as the welcome channel!")
-				return
-			
+			if arg1.startswith("https://discord.com/channels/"):
+				arg1 = arg1.split('/')[-1]
+				print(arg1)
+			else:
+				try: arg1 = str(int(re.sub("[<#> ]","",arg1)))
+				except:
+					await ctx.respond("Please include a valid channel to set as the welcome channel!")
+					return
+
 			if int(arg1) in [x.id for x in ctx.guild.text_channels]:
 				modify_server(int(ctx.guild.id), welcome=arg1)
 				await ctx.reply(f"Welcome channel has been set to <#{arg1}>!")

@@ -5,7 +5,7 @@ from datetime import *
 from Helper.__config import STARTUP
 from Helper.__functions import m_line
 from Helper.__server_functions import member_check
-import random
+import random, os, json
 
 def setup(BOT):
 	BOT.add_cog(Respond(BOT))
@@ -47,8 +47,6 @@ class Respond(cmd.Cog):
 	@cmd.check(member_check)
 	async def respond(self, ctx, limit="10w", order=5, count=1):
 
-		msg = await ctx.reply("**Generating responses... 0% done**\n`[                    ]`")
-
 		try:
 			length = min(2000,max(0,int(limit[:-1])))
 			lentype = "wc"["wc".find(limit[-1])]
@@ -69,29 +67,37 @@ class Respond(cmd.Cog):
 
 		markovDict = {}
 		
-		percentDone = 3
-		maxVal = len(responsesStr) - CHAIN_ORDER + 1
-		interval = randint(80000, 120000)
-		for i in range(len(responsesStr) - CHAIN_ORDER + 1):
+		chainDirs = os.listdir("Helper/Assets/chains")
+		if f"chain_{CHAIN_ORDER}.json" not in chainDirs:
+			msg = await ctx.reply("**Generating responses... 0% done**\n`[                    ]`")	
+			percentDone = 3
+			maxVal = len(responsesStr) - CHAIN_ORDER + 1
+			interval = randint(80000, 120000)
+			for i in range(len(responsesStr) - CHAIN_ORDER + 1):
 
-			percentDone += 97/maxVal
+				percentDone += 97/maxVal
 
-			if i % interval == 0: await edit(msg,f"**Generating response{'s' if count != 1 else ''}... {round(percentDone,2)}% done**\n`[{'#' * round(percentDone/5)}{' ' * round(20-percentDone/5)}]`")
+				if i % interval == 0: await edit(msg,f"**Generating response{'s' if count != 1 else ''}... {round(percentDone,2)}% done**\n`[{'#' * round(percentDone/5)}{' ' * round(20-percentDone/5)}]`")
 
-			endNum = i + CHAIN_ORDER
-			
-			chars = responsesStr[i : endNum]
+				endNum = i + CHAIN_ORDER
+				
+				chars = responsesStr[i : endNum]
 
-			nextChar = (responsesStr[endNum] if endNum < len(responsesStr)
-						else "\n")
-			
-			if chars not in markovDict:
-				markovDict[chars] = [nextChar]
-			else:
-				markovDict[chars].append(nextChar)
-		genresponses = ""
+				nextChar = (responsesStr[endNum] if endNum < len(responsesStr)
+							else "\n")
+				
+				if chars not in markovDict:
+					markovDict[chars] = [nextChar]
+				else:
+					markovDict[chars].append(nextChar)
+			genresponses = ""
 
-		await edit(msg,f"**Generating responses... 9{randint(8,9)}.{randint(0,9)}{randint(0,9)}% done**\n`[####################]`")
+			await edit(msg,f"**Generating responses... 9{randint(8,9)}.{randint(0,9)}{randint(0,9)}% done**\n`[####################]`")
+			open(f"Helper/Assets/chains/chain_{CHAIN_ORDER}.json", 'w').write(json.dumps(markovDict,indent="\t"))
+		else:
+			markovDict = json.load(open(f"Helper/Assets/chains/chain_{CHAIN_ORDER}.json",'r'))
+			genresponses = ""
+			msg = None
 
 		for x in range(count):
 
@@ -127,5 +133,9 @@ class Respond(cmd.Cog):
 
 			if genresponse == "!" and length == 0: genresponse = "⚠️ Command output is an empty string."
 			genresponses += genresponse + "\n"
-		await edit(msg, genresponses[:2000])
+
+		if msg is not None:
+			await edit(msg, genresponses[:2000])
+		else:
+			await ctx.reply(genresponses[:2000])
 		return

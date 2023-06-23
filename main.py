@@ -2,8 +2,8 @@ import discord as dc
 from discord import *
 from Helper.__comp import *
 from Helper.__config import TOKEN, BRAIN, STARTUP
-from Helper.__functions import m_line, is_slash_cmd, get_members, command_user
-from Helper.__server_functions import get_server_json, member_check, is_staff_here, modify_server, increment_points
+from Helper.__functions import m_line, is_slash_cmd, get_members, command_user, smart_name
+from Helper.__server_functions import get_server_json, member_check, is_staff_here, modify_server, increment_points, is_bot_channel
 from discord.ext import commands as cmd
 from Commands.help import Help
 from time import time
@@ -56,18 +56,20 @@ async def on_member_join(member):
 	try: channel = BRAIN.get_channel(int(get_server_json()[str(member.guild.id)][4]))
 	except: return
 
-	embed = dc.Embed(title=f"Welcome, {member.display_name}!",description=f"<@{member.id}> just joined **{member.guild.name}**.\n(`{member.id}`)",color=0x33dd33)
+	embed = dc.Embed(title=f"Welcome, {member.display_name}!",description=f"**{smart_name(member)}** just joined **{member.guild.name}**.\n(`{member.id}`)",color=0x33dd33)
 	embed.set_footer(icon_url=member.display_avatar.url, text="Enjoy your stay!")
-	await channel.send(embed=embed)
+	msg = await channel.send(embed=embed)
+	await msg.add_reaction("👋🏾")
 
 @BRAIN.event
 async def on_member_remove(member):
 	try: channel = BRAIN.get_channel(int(get_server_json()[str(member.guild.id)][4]))
 	except: return
 
-	embed = dc.Embed(title=f"Farewell, {member.display_name}!",description=f"<@{member.id}> just left **{member.guild.name}**.\n(`{member.id}`)",color=0xdd3333)
+	embed = dc.Embed(title=f"Farewell, {member.display_name}!",description=f"**{smart_name(member)}** just left **{member.guild.name}**.\n(`{member.id}`)",color=0xdd3333)
 	embed.set_footer(icon_url=member.display_avatar.url, text="We will miss you!")
-	await channel.send(embed=embed)
+	msg = await channel.send(embed=embed)
+	await msg.add_reaction("👋🏾")
 
 @BRAIN.event
 async def on_ready():
@@ -151,7 +153,10 @@ async def error_handler(ctx, err):
 	
 	if type(err) in [dc.errors.CheckFailure, cmd.errors.CheckFailure]:
 		if member_check(ctx, False) or is_staff_here(ctx): await ctx.respond("💀 You do not have permission to run this command!")
-		if not member_check(ctx, False) and is_slash_cmd(ctx): await ctx.respond("💀 You do not have permission to run this command here!", ephemeral=True)
+		if not member_check(ctx, False):
+			if is_slash_cmd(ctx): await ctx.respond("💀 You do not have permission to run this command here!", ephemeral=True)
+			elif is_bot_channel(ctx) is None:
+				await ctx.respond("No channels are currently whitelisted for members to use commands in! Please pester the server owner to check out p!botchannel.")
 		return
 	
 	if type(err) == cmd.errors.CommandOnCooldown:

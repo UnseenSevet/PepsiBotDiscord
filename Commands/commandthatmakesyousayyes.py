@@ -26,7 +26,7 @@ class Commandthatmakesyousayyes(cmd.Cog):
 		self.BRAIN = BRAIN
 
 	# Slash version of the command due to incompatibility
-	@cmd.slash_command(name="commandthatmakesyousayyes")
+	@cmd.slash_command(name="ctmysy")
 	@cmd.cooldown(1, 1, cmd.BucketType.user)
 	@cmd.check(member_check)
 	async def slash_commandthatmakesyousayyes(self, ctx):

@@ -10,10 +10,10 @@ from Helper.__server_functions import member_check
 from math import *
 
 def better_round(n):
-	if n % 1 == 0.5: return int(n+0.5)
-	else: return round(n)
+	if n % 1 >= 0.5: return ceil(n)
+	else: return floor(n)
 
-def parse_str(n):
+def parse_str(n, x):
 	try:
 		float(n[:-1] if n[-1] == "%" else n)
 	except:
@@ -23,7 +23,7 @@ def parse_str(n):
 		n = float(n[:-1]) / 100
 	else:
 		n = float(n)
-	return n
+	return max(n, x) if x is not None else n
 
 def setup(BOT):
 	BOT.add_cog(Elimpath(BOT))
@@ -75,15 +75,15 @@ class Elimpath(cmd.Cog):
 			await ctx.reply("Please enter a contestant count greater than or equal to 2.", ephemeral=True)
 			return
 
-		elimrate = parse_str(elimrate)
+		elimrate = parse_str(elimrate, 0.00001)
 		if elimrate is None:
 			await ctx.reply("Please enter a valid value for the elimination rate, such as 0.2 or 20%.", ephemeral=True)
 
-		dx = parse_str(dx)
+		dx = parse_str(dx, None)
 		if dx is None:
 			await ctx.reply("Please enter a valid value for dx, such as 0.05 or 5%.", ephemeral=True)
 
-		limit = parse_str(limit)
+		limit = parse_str(limit, 0)
 		if limit is None:
 			await ctx.reply("Please enter a valid value for the limit, such as 0.5 or 50%.", ephemeral=True)
 
@@ -91,7 +91,7 @@ class Elimpath(cmd.Cog):
 		i = contestants
 		while i > 1:
 			rounds.append(i)
-			i = max(1, min(i-1, better_round(i*(1-elimrate))))			
+			i = max(1, min(i-1, i-better_round(i*elimrate)))			
 			elimrate += dx
 			if dx < 0: elimrate = max(limit, elimrate)
 			else: elimrate = min(limit, elimrate)	
